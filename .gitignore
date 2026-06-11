@@ -1,0 +1,5 @@
+ServerSource/venv
+ServerSource/__pycache__
+
+# This one is only simple demo, so it's ok
+ServerSource/.env 
