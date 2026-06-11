@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jakarta Fair Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">Jakarta Fair Shop</a>
+        <div class="nav-links">
+            <a href="index.html" class="active">Home</a>
+            <a href="#">MSME Stalls</a>
+            <a href="#">My Orders</a>
+            <a href="#">Help</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Discover Local Gems</h1>
+        <p>Supporting Jakarta's MSMEs during the festive season of PRJ.</p>
+        <div class="search-bar">
+            <input type="text" placeholder="Search for food, crafts, or stalls...">
+            <button>Search</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2 class="section-title">Trending Now</h2>
+        <p class="section-subtitle">Most popular items from our stalls today.</p>
+        
+        <div class="product-grid" id="product-list">
+            <!-- Products will be injected here via JS -->
+            <p>Loading products...</p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Message here</div>
+
+    <script src="app.js"></script>
+</body>
+</html>

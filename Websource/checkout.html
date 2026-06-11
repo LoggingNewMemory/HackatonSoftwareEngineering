@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Order - Jakarta Fair Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">Jakarta Fair Shop</a>
+        <div class="nav-links">
+            <a href="index.html">← Back to Shop</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 class="section-title">Review Order</h2>
+        
+        <div class="checkout-container">
+            <!-- Left col: Item Details -->
+            <div class="card" id="order-details">
+                <p>Loading your item...</p>
+                <!-- Rendered by JS -->
+            </div>
+
+            <!-- Right col: Payment -->
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                    <span style="color: var(--primary-color);">🛡️</span> Secure Checkout
+                </h3>
+                
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">SELECT PAYMENT METHOD</p>
+                
+                <div class="payment-method selected">
+                    <input type="radio" name="payment" checked>
+                    <div>
+                        <div style="font-weight: 600;">QRIS</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Scan with any e-wallet</div>
+                    </div>
+                </div>
+                
+                <div class="payment-method">
+                    <input type="radio" name="payment">
+                    <div>
+                        <div style="font-weight: 600;">GoPay</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Direct app payment</div>
+                    </div>
+                </div>
+
+                <hr style="border:none; border-top: 1px dashed var(--border-color); margin: 2rem 0;">
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <span>Subtotal</span>
+                    <strong id="summary-subtotal">Rp 0</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: var(--text-muted);">
+                    <span>Fair Processing Fee</span>
+                    <span>Rp 2.500</span>
+                </div>
+                
+                <hr style="border:none; border-top: 1px solid var(--border-color); margin: 1rem 0;">
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700;">
+                    <span>Total</span>
+                    <span style="color: var(--primary-color);" id="summary-total">Rp 0</span>
+                </div>
+
+                <button class="btn-primary" id="btn-pay" onclick="processPayment()">
+                    🔒 Pay Now <span id="btn-pay-amount"></span>
+                </button>
+                <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem;">
+                    ✓ Encrypted and Secure Transaction
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Message here</div>
+
+    <script src="app.js"></script>
+    <script>
+        // Load data automatically on checkout page
+        document.addEventListener('DOMContentLoaded', loadCheckoutData);
+    </script>
+</body>
+</html>
