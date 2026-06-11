@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password - Jakarta Fair Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">Jakarta Fair Shop</a>
+    </nav>
+    <div class="container" style="max-width: 400px; margin-top: 5rem;">
+        <div class="card">
+            <h2 class="section-title" style="text-align: center;">Reset Password</h2>
+            <p class="section-subtitle" style="text-align: center;">Enter your username and new password</p>
+            <form id="forgot-form" onsubmit="handleForgot(event)">
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; color: var(--text-main);">Username</label>
+                    <input type="text" id="forgot-username" required style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 0.5rem; outline: none;">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-weight: 600; color: var(--text-main);">New Password</label>
+                    <input type="password" id="forgot-password" required style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 0.5rem; outline: none;">
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 0;">Update Password</button>
+            </form>
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+                Remember your password? <a href="login.html" style="color: var(--primary-color); font-weight: bold; text-decoration: none;">Login</a>
+            </p>
+        </div>
+    </div>
+    <div id="toast" class="toast">Message here</div>
+    <script src="app.js"></script>
+</body>
+</html>

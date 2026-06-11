@@ -289,12 +289,41 @@ async function handleRegister(e) {
     }
 }
 
+// --- Forgot Password Logic ---
+async function handleForgot(e) {
+    e.preventDefault();
+    const u = document.getElementById('forgot-username').value;
+    const p = document.getElementById('forgot-password').value;
+    
+    try {
+        const res = await fetch(`${API_BASE}/reset_password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, new_password: p })
+        });
+        const result = await res.json();
+        
+        if(res.ok) {
+            showToast('Password reset successful! Please login.', 'success');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        } else {
+            showToast(result.message || 'Reset failed', 'error');
+        }
+    } catch(err) {
+        showToast('Network error', 'error');
+    }
+}
+
 function logout() {
     localStorage.removeItem('jf_user');
     window.location.href = 'login.html';
 }
 
 // --- Seller Dashboard Logic (Design Workflow) ---
+let captchaAns = 0;
+
 function initSellerDashboard() {
     const userStr = localStorage.getItem('jf_user');
     if(!userStr) {
@@ -309,14 +338,56 @@ function initSellerDashboard() {
     
     document.getElementById('seller-name').textContent = user.profile.nama_stand;
     const statusEl = document.getElementById('seller-status');
+    const verifPanel = document.getElementById('verification-panel');
+    const dashContent = document.getElementById('dashboard-content');
+    const myProdPanel = document.getElementById('my-products-panel');
+
     if(user.profile.is_verified) {
-        statusEl.innerHTML = '<span style="color: var(--success-color); font-weight: bold;">✓ Verified</span>';
+        statusEl.innerHTML = '<span style="color: var(--success-color); font-weight: bold;">✓ Verified MSME</span>';
+        if(verifPanel) verifPanel.style.display = 'none';
+        if(dashContent) dashContent.style.display = 'grid';
+        if(myProdPanel) myProdPanel.style.display = 'block';
+        loadSellerOrders(user.profile.id_penjual);
+        loadSellerProducts(user.profile.id_penjual);
     } else {
-        statusEl.innerHTML = '<span style="color: var(--primary-color); font-weight: bold;">✕ Unverified (Please submit verification)</span>';
-        document.getElementById('add-product-form').innerHTML = '<p style="color: var(--primary-color);">You must be verified to add menus.</p>';
+        statusEl.innerHTML = '<span style="color: var(--primary-color); font-weight: bold;">✕ Unverified Account</span>';
+        if(verifPanel) verifPanel.style.display = 'block';
+        if(dashContent) dashContent.style.display = 'none';
+        if(myProdPanel) myProdPanel.style.display = 'none';
+        
+        // Generate simple captcha
+        const n1 = Math.floor(Math.random() * 10) + 1;
+        const n2 = Math.floor(Math.random() * 10) + 1;
+        captchaAns = n1 + n2;
+        document.getElementById('captcha-q').textContent = `${n1} + ${n2}`;
     }
-    
-    loadSellerOrders(user.profile.id_penjual);
+}
+
+async function handleVerification(e) {
+    e.preventDefault();
+    const ans = parseInt(document.getElementById('captcha-a').value);
+    if(ans !== captchaAns) {
+        showToast('Incorrect captcha! Please try again.', 'error');
+        return;
+    }
+    const user = JSON.parse(localStorage.getItem('jf_user'));
+    try {
+        const res = await fetch(`${API_BASE}/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_penjual: user.profile.id_penjual })
+        });
+        if(res.ok) {
+            showToast('Account Verified Successfully!', 'success');
+            user.profile.is_verified = 1; // Update locally
+            localStorage.setItem('jf_user', JSON.stringify(user));
+            initSellerDashboard(); // Re-init to show dashboard
+        } else {
+            showToast('Verification failed.', 'error');
+        }
+    } catch(err) {
+        showToast('Network error during verification', 'error');
+    }
 }
 
 async function handleAddProduct(e) {
@@ -340,6 +411,7 @@ async function handleAddProduct(e) {
         if(res.ok) {
             showToast('Product added! Buyers can now order it.', 'success');
             e.target.reset();
+            loadSellerProducts(user.profile.id_penjual);
         } else {
             showToast(result.message, 'error');
         }
@@ -410,6 +482,56 @@ async function updateOrderStatus(id_pesanan, status) {
         }
     } catch(err) {
         showToast('Error updating status', 'error');
+    }
+}
+
+async function loadSellerProducts(id_penjual) {
+    const listEl = document.getElementById('seller-products');
+    if(!listEl) return;
+    try {
+        const res = await fetch(`${API_BASE}/produk/seller/${id_penjual}`);
+        const products = await res.json();
+        listEl.innerHTML = '';
+        if(products.length === 0) {
+            listEl.innerHTML = '<p>You have not added any products yet.</p>';
+            return;
+        }
+        products.forEach(p => {
+            listEl.innerHTML += `
+                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-color);">${p.nama_produk}</div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">Price: ${formatRupiah(p.harga)}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: var(--radius-md);">
+                        <span style="font-weight: 600; margin-right: 0.5rem;">Stock: <span style="font-size: 1.2rem;">${p.stok}</span></span>
+                        <button onclick="updateStock(${p.id_produk}, 1)" style="background:var(--success-color); color:white; border:none; width: 30px; height: 30px; border-radius:5px; cursor:pointer; font-weight: bold; font-size: 1.1rem;">+</button>
+                        <button onclick="updateStock(${p.id_produk}, -1)" style="background:var(--primary-color); color:white; border:none; width: 30px; height: 30px; border-radius:5px; cursor:pointer; font-weight: bold; font-size: 1.1rem;">-</button>
+                    </div>
+                </div>
+            `;
+        });
+    } catch(err) {
+        listEl.innerHTML = '<p style="color: red;">Error loading products.</p>';
+    }
+}
+
+async function updateStock(id_produk, delta) {
+    try {
+        const res = await fetch(`${API_BASE}/produk/${id_produk}/stok`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ delta })
+        });
+        if(res.ok) {
+            showToast('Stock successfully updated!', 'success');
+            const user = JSON.parse(localStorage.getItem('jf_user'));
+            loadSellerProducts(user.profile.id_penjual);
+        } else {
+            showToast('Failed to update stock (cannot go below 0).', 'error');
+        }
+    } catch(err) {
+        showToast('Error updating stock', 'error');
     }
 }
 

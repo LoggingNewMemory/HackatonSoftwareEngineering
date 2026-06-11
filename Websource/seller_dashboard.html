@@ -21,7 +21,18 @@
             </div>
         </div>
 
-        <div class="checkout-container">
+        <!-- Verification Section -->
+        <div id="verification-panel" class="card" style="display: none; margin-bottom: 2rem; border: 2px dashed var(--primary-color);">
+            <h3 style="color: var(--primary-color); margin-bottom: 0.5rem;">Account Verification Required</h3>
+            <p style="margin-bottom: 1rem; color: var(--text-muted);">To protect the Jakarta Fair marketplace from spam, please solve this captcha to verify your MSME seller account.</p>
+            <form onsubmit="handleVerification(event)" style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-weight: 600;">What is <span id="captcha-q" style="font-size: 1.2rem; color: var(--primary-color);"></span> ?</label>
+                <input type="number" id="captcha-a" required style="padding: 0.5rem; width: 80px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                <button type="submit" class="btn-primary" style="padding: 0.5rem 1.5rem; width: auto; margin-top: 0;">Verify Now</button>
+            </form>
+        </div>
+
+        <div class="checkout-container" id="dashboard-content">
             <!-- Menu Management (Pasang Menu & Harga) -->
             <div class="card" style="align-self: start;">
                 <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Pasang Menu & Harga</h3>
@@ -48,6 +59,14 @@
                 <div id="seller-orders">
                     <p>Loading orders...</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- My Products Section -->
+        <div class="card" id="my-products-panel" style="margin-top: 2rem; display: none;">
+            <h3 style="margin-bottom: 1rem;">My Products (Manage Stock)</h3>
+            <div id="seller-products">
+                <p>Loading products...</p>
             </div>
         </div>
     </div>

@@ -40,7 +40,12 @@ def get_db_connection():
             password=DB_PASSWORD,
             database=DB_NAME
         )
-    return pool.get_connection()
+    conn = pool.get_connection()
+    # Reset any lingering repeatable-read transaction snapshots 
+    # left over from previous pool usages
+    try: conn.commit() 
+    except: pass
+    return conn
 
 # --- DB INIT LOGIC ---
 def init_db_internal():
@@ -174,6 +179,68 @@ def register():
 
         conn.commit()
         return jsonify({"status": "success", "message": "Registration successful"})
+    except Exception as e:
+        if conn: conn.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+
+@app.route('/api/verify', methods=['POST'])
+def verify_seller_api():
+    data = request.json
+    id_penjual = data.get('id_penjual')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE penjual SET is_verified = TRUE WHERE id_penjual = %s", (id_penjual,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({"status": "success", "message": "Verified!"})
+
+@app.route('/api/produk/seller/<int:id_penjual>', methods=['GET'])
+def get_seller_products(id_penjual):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM produk WHERE id_penjual = %s", (id_penjual,))
+    produk = cursor.fetchall()
+    for p in produk:
+        p['harga'] = float(p['harga'])
+    cursor.close()
+    conn.close()
+    return jsonify(produk)
+
+@app.route('/api/produk/<int:id_produk>/stok', methods=['PUT'])
+def update_stock(id_produk):
+    data = request.json
+    delta = int(data.get('delta', 0))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE produk SET stok = stok + %s WHERE id_produk = %s AND stok + %s >= 0", (delta, id_produk, delta))
+    rowcount = cursor.rowcount
+    conn.commit()
+    cursor.close()
+    conn.close()
+    if rowcount == 0:
+        return jsonify({"status": "error", "message": "Invalid stock update"}), 400
+    return jsonify({"status": "success"})
+
+@app.route('/api/reset_password', methods=['POST'])
+def reset_password():
+    data = request.json
+    username = data.get('username')
+    new_password = data.get('new_password')
+    
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET password = %s WHERE username = %s", (new_password, username))
+        if cursor.rowcount == 0:
+            return jsonify({"status": "error", "message": "Username not found"}), 404
+        conn.commit()
+        return jsonify({"status": "success", "message": "Password reset successfully"})
     except Exception as e:
         if conn: conn.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
