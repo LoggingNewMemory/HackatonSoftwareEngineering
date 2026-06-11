@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Jakarta Fair Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">Jakarta Fair Shop</a>
+    </nav>
+    <div class="container" style="max-width: 400px; margin-top: 5rem;">
+        <div class="card">
+            <h2 class="section-title" style="text-align: center;">Login</h2>
+            <p class="section-subtitle" style="text-align: center;">Select your role & log in to continue</p>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; color: var(--text-main);">Username</label>
+                    <input type="text" id="username" required style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 0.5rem; outline: none;">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-weight: 600; color: var(--text-main);">Password</label>
+                    <input type="password" id="password" required style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 0.5rem; outline: none;">
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 0;">Sign In</button>
+            </form>
+            <div style="text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); background: rgba(0,0,0,0.03); padding: 1rem; border-radius: var(--radius-md);">
+                <strong>Test Accounts</strong><br>
+                Seller: <code>stand_makanan</code> / <code>pass123</code><br>
+                Buyer: <code>budi_buyer</code> / <code>pass123</code>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast">Message here</div>
+    <script src="app.js"></script>
+</body>
+</html>

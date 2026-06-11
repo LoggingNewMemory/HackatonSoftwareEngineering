@@ -325,16 +325,16 @@ def beli_produk():
             conn.rollback()
             return jsonify({"status": "error", "message": "Produk tidak ditemukan!"}), 400
 
-        if produk['stok'] < jumlah:
+        if produk['stok'] < int(jumlah):
             conn.rollback()
             return jsonify({"status": "error", "message": "Stok tidak cukup!"}), 400
 
         harga_satuan = produk['harga']
-        total_harga = harga_satuan * float(jumlah)
+        total_harga = harga_satuan * int(jumlah)
         id_penjual = produk['id_penjual']
 
         # Reduce stock
-        cursor.execute("UPDATE produk SET stok = stok - %s WHERE id_produk = %s", (jumlah, id_produk))
+        cursor.execute("UPDATE produk SET stok = stok - %s WHERE id_produk = %s", (int(jumlah), id_produk))
 
         # Create pesanan (status is 'pending' automatically for seller to process)
         cursor.execute(
