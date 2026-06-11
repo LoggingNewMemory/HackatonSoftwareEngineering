@@ -138,6 +138,49 @@ def init_db():
         return jsonify({"status": "error", "message": message}), 500
 
 # --- AUTHENTICATION ---
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    role = data.get('role')
+    name = data.get('name')
+
+    if not all([username, password, role, name]):
+        return jsonify({"status": "error", "message": "Missing required fields"}), 400
+
+    if role not in ['buyer', 'seller']:
+        return jsonify({"status": "error", "message": "Invalid role"}), 400
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        conn.start_transaction()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT id_user FROM users WHERE username = %s", (username,))
+        if cursor.fetchone():
+            conn.rollback()
+            return jsonify({"status": "error", "message": "Username already exists"}), 400
+
+        cursor.execute("INSERT INTO users (username, password, role) VALUES (%s, %s, %s)", (username, password, role))
+        id_user = cursor.lastrowid
+
+        if role == 'buyer':
+            cursor.execute("INSERT INTO pelanggan (id_user, nama_pelanggan) VALUES (%s, %s)", (id_user, name))
+        else:
+            cursor.execute("INSERT INTO penjual (id_user, nama_stand, is_verified) VALUES (%s, %s, FALSE)", (id_user, name))
+
+        conn.commit()
+        return jsonify({"status": "success", "message": "Registration successful"})
+    except Exception as e:
+        if conn: conn.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json

@@ -260,6 +260,35 @@ async function handleLogin(e) {
     }
 }
 
+// --- Register Logic ---
+async function handleRegister(e) {
+    e.preventDefault();
+    const u = document.getElementById('reg-username').value;
+    const p = document.getElementById('reg-password').value;
+    const r = document.getElementById('reg-role').value;
+    const n = document.getElementById('reg-name').value;
+    
+    try {
+        const res = await fetch(`${API_BASE}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, password: p, role: r, name: n })
+        });
+        const result = await res.json();
+        
+        if(res.ok) {
+            showToast('Registration successful! Please login.', 'success');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        } else {
+            showToast(result.message || 'Registration failed', 'error');
+        }
+    } catch(err) {
+        showToast('Network error', 'error');
+    }
+}
+
 function logout() {
     localStorage.removeItem('jf_user');
     window.location.href = 'login.html';
